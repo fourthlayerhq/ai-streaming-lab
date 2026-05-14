@@ -32,3 +32,27 @@ button {
     line-height: 1.6;
     white-space: pre-wrap;
 }
+
+.simulation-controls {
+    margin-top: 20px;
+}
+
+#streams-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.stream-card {
+    border: 1px solid #333;
+    padding: 12px;
+    border-radius: 8px;
+    background: #111;
+}
+
+.stream-output {
+    margin-top: 10px;
+    color: #00ff90;
+    font-size: 14px;
+}

@@ -27,8 +27,27 @@
                 Stream Response
             </button>
         </div>
+
         <h3>Response</h3>
         <div id="response-box"></div>
+
+        <hr />
+
+        <h2>Concurrent Stream Simulation</h2>
+
+        <div class="simulation-controls">
+
+            <input type="number" id="stream-count" min="1" max="100" value="5" />
+
+            <button id="simulate-btn">
+                Launch Streams
+            </button>
+
+        </div>
+
+        <div id="metrics-box"></div>
+        <div id="streams-container"></div>
+
     </div>
 
     <script src="script.js"></script>

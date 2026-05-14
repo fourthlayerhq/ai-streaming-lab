@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .streaming import stream_response
+from .stream_manager import stream_manager
 
 app = FastAPI()
 
@@ -33,3 +34,7 @@ async def normal_response():
 @app.get("/stream-response")
 async def stream_endpoint():
     return await stream_response()
+
+@app.get("/metrics")
+async def metrics():
+    return stream_manager.get_metrics()
