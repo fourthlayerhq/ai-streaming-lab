@@ -12,6 +12,11 @@ const streamsContainer =
 const metricsBox =
     document.getElementById("metrics-box");
 
+const startupDelayInput =
+    document.getElementById("startup-delay");
+
+const tokenDelayInput =
+    document.getElementById("token-delay");
 // NORMAL RESPONSE
 
 normalBtn.addEventListener("click", async () => {
@@ -76,9 +81,13 @@ async function launchConcurrentStreams(count) {
     for (let i = 1; i <= count; i++) {
 
         const output = createStreamCard(i);
+        const startupDelay =
+            startupDelayInput.value;
 
+        const tokenDelay =
+            tokenDelayInput.value;
         const eventSource = new EventSource(
-            "http://127.0.0.1:8000/stream-response"
+            `http://127.0.0.1:8000/stream-response?startup_delay=${startupDelay}&token_delay=${tokenDelay}`
         );
 
         eventSource.onmessage = (event) => {

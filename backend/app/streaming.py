@@ -8,7 +8,10 @@ from .models import StreamSession
 from .stream_manager import stream_manager
 
 
-async def stream_response():
+async def stream_response(
+    startup_delay=0,
+    token_delay=0.1,
+):
 
     async def event_generator():
 
@@ -23,7 +26,10 @@ async def stream_response():
 
             first_token_sent = False
 
-            async for token in fake_token_generator():
+            async for token in fake_token_generator(
+                startup_delay=startup_delay,
+                token_delay=token_delay,
+            ):
 
                 if token == "[DONE]":
 
@@ -34,11 +40,21 @@ async def stream_response():
 
                     break
 
+                # IMPORTANT:
+                # First token latency should measure:
+                # request start -> first visible token
+
                 if not first_token_sent:
-                    stream_manager.mark_first_token(session.id)
+
+                    stream_manager.mark_first_token(
+                        session.id
+                    )
+
                     first_token_sent = True
 
-                stream_manager.increment_token(session.id)
+                stream_manager.increment_token(
+                    session.id
+                )
 
                 yield {
                     "event": "message",

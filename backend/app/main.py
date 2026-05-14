@@ -32,8 +32,14 @@ async def normal_response():
 
 
 @app.get("/stream-response")
-async def stream_endpoint():
-    return await stream_response()
+async def stream_response_endpoint(
+    startup_delay: int = 0,
+    token_delay: int = 100,
+):
+    return await stream_response(
+        startup_delay=startup_delay / 1000,
+        token_delay=token_delay / 1000,
+    )
 
 @app.get("/metrics")
 async def metrics():
