@@ -23,7 +23,7 @@ async def root():
 
 @app.get("/normal-response")
 async def normal_response():
-    await asyncio.sleep(5)
+    await asyncio.sleep(6)
 
     return {
         "response": "AI engineering is increasingly becoming systems engineering."

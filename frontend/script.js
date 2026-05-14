@@ -7,7 +7,8 @@ const streamBtn = document.getElementById("stream-btn");
 // NORMAL RESPONSE
 
 normalBtn.addEventListener("click", async () => {
-    responseBox.innerHTML = "Waiting for full response...\n";
+    responseBox.innerHTML =
+        "[Normal Response]\n\nWaiting for full response...\n";
 
     const response = await fetch(
         "http://127.0.0.1:8000/normal-response"
@@ -22,7 +23,8 @@ normalBtn.addEventListener("click", async () => {
 // STREAM RESPONSE
 
 streamBtn.addEventListener("click", async () => {
-    responseBox.innerHTML = "Streaming response...\n\n";
+    responseBox.innerHTML =
+        "[Streaming Response]\n\n";
 
     const eventSource = new EventSource(
         "http://127.0.0.1:8000/stream-response"
