@@ -111,29 +111,18 @@ async function fetchMetrics() {
 
     const metrics = await response.json();
 
-    metricsBox.innerHTML = `
-        <h3>System Metrics</h3>
+    document.getElementById("active-streams")
+        .innerText = metrics.active_streams;
 
-        <p>
-            Active Streams:
-            ${metrics.active_streams}
-        </p>
+    document.getElementById("completed-streams")
+        .innerText = metrics.completed_streams;
 
-        <p>
-            Completed Streams:
-            ${metrics.completed_streams}
-        </p>
+    document.getElementById("avg-tokens")
+        .innerText = metrics.avg_tokens_per_stream;
 
-        <p>
-            Avg Tokens:
-            ${metrics.avg_tokens_per_stream}
-        </p>
-
-        <p>
-            Avg First Token:
-            ${metrics.avg_first_token_ms} ms
-        </p>
-    `;
+    document.getElementById("first-token-latency")
+        .innerText =
+        `${metrics.avg_first_token_ms} ms`;
 }
 
 setInterval(fetchMetrics, 1000);
