@@ -9,3 +9,5 @@ async def fake_token_generator():
     for token in text.split():
         await asyncio.sleep(0.3)
         yield token + " "
+    
+    yield "[DONE]"
