@@ -6,6 +6,7 @@ class StreamManager:
     def __init__(self):
         self.active_streams = {}
         self.completed_streams = {}
+        self.queued_streams = 0
 
     def create_session(self, session):
         self.active_streams[session.id] = session
@@ -69,7 +70,15 @@ class StreamManager:
             "completed_streams": len(self.completed_streams),
             "avg_tokens_per_stream": round(avg_tokens, 2),
             "avg_first_token_ms": round(avg_first_token_ms, 2),
+            "queued_streams": self.queued_streams,
         }
+
+    def increment_queue(self):
+        self.queued_streams += 1
+
+
+    def decrement_queue(self):
+        self.queued_streams -= 1
 
 
 stream_manager = StreamManager()

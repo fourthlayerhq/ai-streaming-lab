@@ -6,7 +6,7 @@ from sse_starlette.sse import EventSourceResponse
 from .fake_llm import fake_token_generator
 from .models import StreamSession
 from .stream_manager import stream_manager
-
+from .queue_manager import stream_semaphore
 
 async def stream_response(
     startup_delay=0,
@@ -24,42 +24,44 @@ async def stream_response(
 
         try:
 
-            first_token_sent = False
+            stream_manager.increment_queue()
 
-            async for token in fake_token_generator(
-                startup_delay=startup_delay,
-                token_delay=token_delay,
-            ):
+            async with stream_semaphore:
 
-                if token == "[DONE]":
+                stream_manager.decrement_queue()
 
-                    yield {
-                        "event": "done",
-                        "data": "completed",
-                    }
+                first_token_sent = False
 
-                    break
+                async for token in fake_token_generator(
+                    startup_delay=startup_delay,
+                    token_delay=token_delay,
+                ):
 
-                # IMPORTANT:
-                # First token latency should measure:
-                # request start -> first visible token
+                    if token == "[DONE]":
 
-                if not first_token_sent:
+                        yield {
+                            "event": "done",
+                            "data": "completed",
+                        }
 
-                    stream_manager.mark_first_token(
+                        break
+
+                    if not first_token_sent:
+
+                        stream_manager.mark_first_token(
+                            session.id
+                        )
+
+                        first_token_sent = True
+
+                    stream_manager.increment_token(
                         session.id
                     )
 
-                    first_token_sent = True
-
-                stream_manager.increment_token(
-                    session.id
-                )
-
-                yield {
-                    "event": "message",
-                    "data": token,
-                }
+                    yield {
+                        "event": "message",
+                        "data": token,
+                    }
 
         finally:
             stream_manager.complete_session(session.id)

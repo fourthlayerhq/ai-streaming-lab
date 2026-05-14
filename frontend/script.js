@@ -132,6 +132,9 @@ async function fetchMetrics() {
     document.getElementById("first-token-latency")
         .innerText =
         `${metrics.avg_first_token_ms} ms`;
+
+    document.getElementById("queued-streams")
+        .innerText = metrics.queued_streams;
 }
 
 setInterval(fetchMetrics, 1000);
