@@ -24,6 +24,11 @@ export function createStreamCard(streamId) {
         },
         updateStatus: (statusText) => {
             statusElement.innerText = `Status: ${statusText}`;
+            card.classList.remove('queued', 'active', 'completed');
+            const state = statusText.toLowerCase();
+            if (['queued', 'active', 'completed'].includes(state)) {
+                card.classList.add(state);
+            }
         }
     };
 }

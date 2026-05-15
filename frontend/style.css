@@ -49,6 +49,22 @@ button {
     padding: 12px;
     border-radius: 8px;
     background: #111;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.stream-card.queued {
+    border-color: #d97706;
+    background: rgba(217, 119, 6, 0.1);
+}
+
+.stream-card.active {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.stream-card.completed {
+    border-color: #16a34a;
+    background: rgba(22, 163, 74, 0.1);
 }
 
 .stream-output {
