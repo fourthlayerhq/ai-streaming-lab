@@ -155,3 +155,5 @@ class StreamManager:
             "events": self.events,
             "max_slots": stream_semaphore.max_slots
         }
+
+stream_manager = StreamManager()
