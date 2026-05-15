@@ -3,16 +3,27 @@ body {
     background: #111;
     color: white;
     margin: 0;
-    padding: 20px 40px;
+    padding: 12px 24px;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
-    max-width: 900px;
-    margin: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 header {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
 }
 header h1 {
     margin-bottom: 2px;
@@ -27,9 +38,10 @@ header p {
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     border-bottom: 1px solid #333;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
+    flex-shrink: 0;
 }
 .tab-btn {
     background: transparent;
@@ -52,6 +64,9 @@ header p {
 }
 .tab-content {
     animation: fadeIn 0.3s ease;
+    flex-grow: 1;
+    min-height: 0;
+    height: 100%;
 }
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -122,19 +137,25 @@ h2 {
 .dashboard-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     margin-top: 0px;
+    height: 100%;
+    min-height: 0;
 }
 
 .dashboard-top-row, .dashboard-middle-row {
     display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 16px;
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
     align-items: stretch;
+    flex-shrink: 0;
 }
 
 .dashboard-bottom-row {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
 }
 
 /* Controls Panel */
@@ -142,10 +163,10 @@ h2 {
     background: #151515;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 12px;
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 .control-row {
     display: flex;
@@ -153,33 +174,33 @@ h2 {
     align-items: center;
 }
 .control-row label {
-    font-size: 13px;
+    font-size: 12px;
     color: #ccc;
 }
 .control-row input {
-    width: 60px;
+    width: 50px;
     background: #222;
     border: 1px solid #444;
     color: white;
-    padding: 4px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 12px;
 }
 .control-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 4px;
+    gap: 8px;
+    margin-top: 2px;
 }
 .control-actions button {
     flex: 1;
-    padding: 6px;
-    font-size: 12px;
+    padding: 4px;
+    font-size: 11px;
 }
 
 /* Metrics Dashboard */
 #metrics-dashboard {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 0;
     align-items: stretch;
 }
@@ -188,7 +209,7 @@ h2 {
     background: #151515;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -205,38 +226,38 @@ h2 {
 
 .metric-card p {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     color: #00ff90;
 }
 
 .concurrency-visualization {
     margin-top: 0;
-    padding: 12px;
+    padding: 8px 12px;
     background: #151515;
     border: 1px solid #333;
     border-radius: 6px;
-    height: 120px;
+    height: 140px;
     overflow-y: auto;
     box-sizing: border-box;
 }
 
 .concurrency-visualization h3 {
     margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 13px;
+    margin-bottom: 6px;
+    font-size: 12px;
     color: #888;
 }
 
 #concurrency-slots {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
 .slot {
-    padding: 4px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: bold;
@@ -256,18 +277,18 @@ h2 {
 }
 
 .queue-status {
-    font-size: 12px;
+    font-size: 11px;
     color: #d97706;
     font-weight: bold;
 }
 
 .latency-history-section {
     margin-top: 0;
-    padding: 12px;
+    padding: 8px 12px;
     background: #151515;
     border: 1px solid #333;
     border-radius: 6px;
-    height: 120px;
+    height: 140px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -276,15 +297,15 @@ h2 {
 .latency-history-section h3 {
     margin-top: 0;
     margin-bottom: 2px;
-    font-size: 13px;
+    font-size: 12px;
     color: #888;
 }
 
 .latency-helper-text {
-    font-size: 11px;
+    font-size: 10px;
     color: #666;
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 #latency-history-bars {
@@ -293,12 +314,13 @@ h2 {
     gap: 4px;
     flex-grow: 1;
     height: auto;
+    min-height: 0;
 }
 
 .latency-bar {
     flex: 1;
     background: #00ff90;
-    min-width: 8px;
+    min-width: 6px;
     border-radius: 2px 2px 0 0;
     transition: height 0.3s ease;
 }
@@ -308,10 +330,11 @@ h2 {
     background: #151515;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 12px;
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
-    height: 400px; /* fixed height for primary panel */
+    flex-grow: 1;
+    min-height: 0;
 }
 
 #streams-container {
@@ -323,6 +346,7 @@ h2 {
     padding: 10px;
     margin-top: 0;
     flex-grow: 1;
+    min-height: 0;
     overflow-y: auto;
     gap: 2px;
 }

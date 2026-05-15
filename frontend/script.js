@@ -20,14 +20,14 @@ const sectionConcurrent = getEl("section-concurrent");
 tabBasics.addEventListener("click", () => {
     tabBasics.classList.add("active");
     tabConcurrent.classList.remove("active");
-    sectionBasics.style.display = "block";
+    sectionBasics.style.display = "flex";
     sectionConcurrent.style.display = "none";
 });
 
 tabConcurrent.addEventListener("click", () => {
     tabConcurrent.classList.add("active");
     tabBasics.classList.remove("active");
-    sectionConcurrent.style.display = "block";
+    sectionConcurrent.style.display = "flex";
     sectionBasics.style.display = "none";
 });
 
