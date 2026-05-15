@@ -17,15 +17,16 @@ Run:
 
 import asyncio
 import uuid
+from contextlib import contextmanager
 from datetime import datetime
 
 import pytest
 
+import app.stream_manager as sm_mod
 from app.queue_manager import ConcurrencyManager
 from app.stream_manager import StreamManager
 from app.fake_llm import fake_token_generator, StreamingFailure
 from app.models import StreamSession
-from app.streaming import background_stream_task
 
 
 # ---------------------------------------------------------------------------
@@ -37,29 +38,27 @@ def make_session() -> StreamSession:
 
 
 def fresh_manager(max_slots: int = 3) -> tuple[StreamManager, ConcurrencyManager]:
-    """Return a pristine (manager, semaphore) pair with no shared global state."""
+    """Return a pristine (manager, semaphore) pair with no shared global state.
+
+    Uses real StreamManager.__init__ so production initialization logic is exercised.
+    """
     sem = ConcurrencyManager()
     sem.max_slots = max_slots
 
-    mgr = StreamManager.__new__(StreamManager)
-    mgr.queued_streams = []
-    mgr.active_streams = {}
-    mgr.completed_streams = []
-    mgr.failed_streams = []
-    mgr.events = []
-    mgr.config = {
-        "failure_rate": 0.0,
-        "random_startup_delay": False,
-        "token_jitter": False,
-        "slow_stream_prob": 0.0,
-    }
-    mgr.start_time = datetime.utcnow()
-    mgr.total_completed_tokens = 0
-    mgr.completion_times = []
-    # Patch manager's reference so get_metrics uses our semaphore
-    import app.stream_manager as sm_mod
-    mgr._sem = sem  # store for test introspection
+    mgr = StreamManager()
+    mgr.reset()  # ensure clean slate even if __init__ changes
     return mgr, sem
+
+
+@contextmanager
+def patched_semaphore(sem: ConcurrencyManager):
+    """Temporarily replace the module-level stream_semaphore used by get_metrics()."""
+    original = sm_mod.stream_semaphore
+    sm_mod.stream_semaphore = sem
+    try:
+        yield
+    finally:
+        sm_mod.stream_semaphore = original
 
 
 async def run_one_task(mgr: StreamManager, sem: ConcurrencyManager, config: dict = None, token_delay: float = 0.01):
@@ -326,7 +325,6 @@ class TestQueueDraining:
         sampler = asyncio.create_task(sampling_task())
 
         mgr, _ = fresh_manager(max_slots=3)
-        mgr._sem = sem
         await asyncio.gather(*[run_one_task(mgr, sem) for _ in range(12)])
 
         sampler.cancel()
@@ -415,9 +413,24 @@ class TestThroughputMetrics:
     async def test_throughput_zero_for_no_completions(self):
         """If nothing completed yet, throughput window returns 0."""
         mgr, sem = fresh_manager()
-        metrics = mgr.get_metrics()
-        # Before any streams: window is empty
+        with patched_semaphore(sem):
+            metrics = mgr.get_metrics()
         assert metrics["metrics"]["throughput"] == 0.0
+
+    @pytest.mark.asyncio
+    async def test_throughput_positive_after_completions(self):
+        """throughput metric must be > 0 after streams complete successfully."""
+        mgr, sem = fresh_manager(max_slots=5)
+        n = 10
+        await asyncio.gather(*[run_one_task(mgr, sem) for _ in range(n)])
+
+        assert len(mgr.completed_streams) == n
+        with patched_semaphore(sem):
+            metrics = mgr.get_metrics()
+        assert metrics["metrics"]["throughput"] > 0, (
+            f"Expected throughput > 0 after {n} completions, got "
+            f"{metrics['metrics']['throughput']}"
+        )
 
     @pytest.mark.asyncio
     async def test_first_token_recorded_on_completed_sessions(self):
@@ -459,20 +472,22 @@ class TestFailureRateApproximation:
 
     @pytest.mark.asyncio
     async def test_partial_failure_rate_within_bounds(self):
-        """50% failure rate → real failure % within ±25% of target (statistical tolerance)."""
-        sem = ConcurrencyManager()
-        sem.max_slots = 10
-        mgr, _ = fresh_manager(max_slots=10)
+        """50% failure rate over 300 samples → actual rate must be within ±15% of target.
+
+        n=300 gives ~3σ confidence that a fair Bernoulli(0.5) stays in [0.35, 0.65].
+        """
+        mgr, sem = fresh_manager(max_slots=10)
         config = {"failure_rate": 0.5, "random_startup_delay": False, "token_jitter": False, "slow_stream_prob": 0.0}
-        n = 100
+        n = 300
         await asyncio.gather(*[run_one_task(mgr, sem, config=config) for _ in range(n)])
 
         total = len(mgr.completed_streams) + len(mgr.failed_streams)
-        assert total == n
+        assert total == n, f"State invariant broken: {total} != {n}"
 
         actual_rate = len(mgr.failed_streams) / n
-        assert 0.25 <= actual_rate <= 0.75, (
-            f"Failure rate {actual_rate:.2f} is outside expected ±25% tolerance around 50%"
+        assert 0.35 <= actual_rate <= 0.65, (
+            f"Failure rate {actual_rate:.2f} is outside ±15% tolerance around 50% "
+            f"(failed={len(mgr.failed_streams)}, completed={len(mgr.completed_streams)}, n={n})"
         )
 
 
@@ -519,14 +534,8 @@ class TestMetricsConsistency:
         mgr, sem = fresh_manager(max_slots=2)
         await asyncio.gather(*[run_one_task(mgr, sem) for _ in range(3)])
 
-        # Patch the module-level stream_semaphore so get_metrics() reads our sem
-        import app.stream_manager as sm_mod
-        original_sem = sm_mod.stream_semaphore
-        sm_mod.stream_semaphore = sem
-        try:
+        with patched_semaphore(sem):
             metrics = mgr.get_metrics()
-        finally:
-            sm_mod.stream_semaphore = original_sem
 
         assert "queued" in metrics
         assert "active" in metrics
@@ -552,13 +561,8 @@ class TestMetricsConsistency:
         await asyncio.gather(*[run_one_task(mgr, sem, config=config) for _ in range(10)])
 
         completed_ids = {s.id for s in mgr.completed_streams}
-        import app.stream_manager as sm_mod
-        original_sem = sm_mod.stream_semaphore
-        sm_mod.stream_semaphore = sem
-        try:
+        with patched_semaphore(sem):
             metrics = mgr.get_metrics()
-        finally:
-            sm_mod.stream_semaphore = original_sem
 
         for entry in metrics["metrics"]["latencyHistory"]:
             assert entry["stream_id"] in completed_ids, (
