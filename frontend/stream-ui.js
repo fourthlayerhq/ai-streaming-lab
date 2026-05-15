@@ -29,6 +29,9 @@ export function createStreamCard(streamId) {
             if (['queued', 'active', 'completed'].includes(state)) {
                 card.classList.add(state);
             }
+            if (state === 'completed') {
+                updateRetention();
+            }
         }
     };
 }
@@ -37,6 +40,18 @@ export function clearStreamsContainer() {
     const container = getEl("streams-container");
     if (container) {
         container.innerHTML = "";
+    }
+}
+
+function updateRetention() {
+    const container = getEl("streams-container");
+    if (!container) return;
+    const completedCards = Array.from(container.querySelectorAll('.stream-card.completed'));
+    if (completedCards.length > 20) {
+        const toRemove = completedCards.length - 20;
+        for (let i = 0; i < toRemove; i++) {
+            completedCards[i].remove();
+        }
     }
 }
 

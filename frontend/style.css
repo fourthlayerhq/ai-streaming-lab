@@ -162,6 +162,54 @@ h2 {
     color: #00ff90;
 }
 
+.concurrency-visualization {
+    margin-top: 20px;
+    padding: 16px;
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+
+.concurrency-visualization h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #888;
+}
+
+#concurrency-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.slot {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: monospace;
+    border: 1px solid #333;
+}
+
+.slot.active-slot {
+    background: rgba(37, 99, 235, 0.2);
+    border-color: #2563eb;
+    color: #8be9fd;
+}
+
+.slot.empty-slot {
+    background: transparent;
+    color: #555;
+}
+
+.queue-status {
+    font-size: 13px;
+    color: #d97706;
+    font-weight: bold;
+}
+
 .latency-history-section {
     margin-top: 20px;
     padding: 16px;

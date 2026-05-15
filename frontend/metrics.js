@@ -14,24 +14,54 @@ function updateLatencyVisualization(latencyMs) {
     
     container.innerHTML = "";
     
-    const maxLatency = Math.max(...latencyHistory, 100);
+    const validHistory = latencyHistory.filter(v => v > 0);
+    const minLatency = validHistory.length > 0 ? Math.min(...validHistory) : 0;
+    const maxLatency = validHistory.length > 0 ? Math.max(...validHistory) : 100;
+    
+    // Ensure we don't divide by zero and scale effectively
+    const range = Math.max(maxLatency - minLatency, 10);
 
     latencyHistory.forEach(val => {
         const bar = createEl("div");
         bar.className = "latency-bar";
         
-        const heightPct = Math.min((val / maxLatency) * 100, 100);
-        bar.style.height = `${heightPct}%`;
-        bar.title = `${val} ms`;
-        
-        // Dim the bar slightly if it's 0 to maintain layout structure
         if (val === 0) {
             bar.style.opacity = "0.2";
             bar.style.height = "2%"; // minimal height to show existence
+        } else {
+            // Scale between 15% and 100% to make variable height visually obvious
+            const heightPct = 15 + ((val - minLatency) / range) * 85;
+            bar.style.height = `${Math.min(heightPct, 100)}%`;
         }
         
+        bar.title = `${val} ms`;
         container.appendChild(bar);
     });
+}
+
+function updateConcurrencyVisualization(activeCount, queuedCount) {
+    const slotsContainer = getEl("concurrency-slots");
+    if (!slotsContainer) return;
+    
+    slotsContainer.innerHTML = "";
+    
+    const MAX_SLOTS = 3; 
+    const totalSlots = Math.max(MAX_SLOTS, activeCount);
+    
+    for (let i = 1; i <= totalSlots; i++) {
+        const slot = createEl("div");
+        if (i <= activeCount) {
+            slot.className = "slot active-slot";
+            slot.innerText = `[SLOT ${i}] ACTIVE`;
+        } else {
+            slot.className = "slot empty-slot";
+            slot.innerText = `[SLOT ${i}] EMPTY`;
+        }
+        slotsContainer.appendChild(slot);
+    }
+    
+    const queueEl = getEl("slot-queue-count");
+    if (queueEl) queueEl.innerText = queuedCount;
 }
 
 export async function fetchMetrics() {
@@ -46,6 +76,7 @@ export async function fetchMetrics() {
         getEl("queued-streams").innerText = metrics.queued_streams;
         
         updateLatencyVisualization(metrics.avg_first_token_ms);
+        updateConcurrencyVisualization(metrics.active_streams, metrics.queued_streams);
     } catch (err) {
         console.error("Error fetching metrics:", err);
     }
