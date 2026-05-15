@@ -44,3 +44,10 @@ async def stream_response_endpoint(
 @app.get("/metrics")
 async def metrics():
     return stream_manager.get_metrics()
+
+@app.post("/reset-metrics")
+async def reset_metrics():
+
+    stream_manager.reset()
+
+    return {"status": "reset"}

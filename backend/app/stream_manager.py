@@ -7,6 +7,12 @@ class StreamManager:
         self.active_streams = {}
         self.completed_streams = {}
         self.queued_streams = 0
+        
+
+    def reset(self):
+        self.active_streams = {}
+        self.completed_streams = {}
+        self.queued_streams = 0
 
     def create_session(self, session):
         self.active_streams[session.id] = session

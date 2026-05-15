@@ -137,4 +137,19 @@ async function fetchMetrics() {
         .innerText = metrics.queued_streams;
 }
 
+const resetBtn =
+    document.getElementById("reset-btn");
+
+resetBtn.addEventListener("click", async () => {
+
+    await fetch(
+        "http://127.0.0.1:8000/reset-metrics",
+        {
+            method: "POST"
+        }
+    );
+
+    streamsContainer.innerHTML = "";
+});
+
 setInterval(fetchMetrics, 1000);
