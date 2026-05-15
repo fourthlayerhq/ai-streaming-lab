@@ -254,6 +254,10 @@ h2 {
     border-radius: 8px;
     background: #151515;
     transition: border-color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 .stream-card h4 {
@@ -280,6 +284,8 @@ h2 {
     border-color: #16a34a;
     background: rgba(22, 163, 74, 0.1);
     opacity: 0.6;
+    height: auto;
+    padding: 8px 12px;
 }
 
 .stream-card.completed .stream-output {
@@ -289,8 +295,30 @@ h2 {
 .stream-output {
     margin-top: 10px;
     color: #00ff90;
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.4;
     word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.stream-grid-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: -10px;
+}
+
+.stream-grid-header h2 {
+    margin: 0;
+}
+
+.retention-indicator {
+    font-size: 13px;
+    color: #888;
 }
 
 /* Responsive */

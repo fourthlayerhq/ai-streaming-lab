@@ -29,8 +29,9 @@ function updateLatencyVisualization(latencyMs) {
             bar.style.opacity = "0.2";
             bar.style.height = "2%"; // minimal height to show existence
         } else {
-            // Scale between 15% and 100% to make variable height visually obvious
-            const heightPct = 15 + ((val - minLatency) / range) * 85;
+            const normalized = Math.max(0, Math.min(1, (val - minLatency) / range));
+            const exaggerated = Math.pow(normalized, 1.5); // Exaggerate spikes
+            const heightPct = 5 + (exaggerated * 95);
             bar.style.height = `${Math.min(heightPct, 100)}%`;
         }
         
