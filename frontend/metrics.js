@@ -35,7 +35,7 @@ export function updateLatencyVisualization(streamId, latencyMs) {
             bar.style.height = `${Math.min(heightPct, 100)}%`;
         }
         
-        bar.title = `Stream ${item.id}\nLatency: ${item.val} ms`;
+        bar.title = `stream-${item.id}\nfirst token latency\n${item.val}ms`;
         container.appendChild(bar);
     });
 }
