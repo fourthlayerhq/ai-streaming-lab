@@ -8,9 +8,15 @@ export function createStreamCard(streamId) {
     card.className = "stream-card";
     card.id = `stream-${streamId}`;
     
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+    
     card.innerHTML = `
-        <h4>Stream ${streamId}</h4>
-        <div class="stream-status">Status: initializing</div>
+        <div class="stream-header">
+            <span class="timestamp">[${timeStr}]</span>
+            <span class="stream-id">STREAM-${streamId}</span>
+            <span class="stream-status">INIT</span>
+        </div>
         <div class="stream-output"></div>
     `;
     
@@ -28,14 +34,24 @@ export function createStreamCard(streamId) {
                 firstTokenTime = performance.now();
             }
             outputElement.innerHTML += token;
+            
+            // Auto-scroll when active
+            if (container.scrollHeight - container.scrollTop < container.clientHeight + 100) {
+                container.scrollTop = container.scrollHeight;
+            }
         },
         updateStatus: (statusText) => {
-            statusElement.innerText = `Status: ${statusText}`;
+            statusElement.innerText = statusText.toUpperCase();
             card.classList.remove('queued', 'active', 'completed');
             const state = statusText.toLowerCase();
             if (['queued', 'active', 'completed'].includes(state)) {
                 card.classList.add(state);
             }
+            
+            // Update timestamp on state change
+            const tNow = new Date();
+            const tStr = `${tNow.getHours().toString().padStart(2, '0')}:${tNow.getMinutes().toString().padStart(2, '0')}:${tNow.getSeconds().toString().padStart(2, '0')}.${tNow.getMilliseconds().toString().padStart(3, '0')}`;
+            card.querySelector(".timestamp").innerText = `[${tStr}]`;
             
             const activeCount = container.querySelectorAll('.stream-card.active').length;
             const queuedCount = container.querySelectorAll('.stream-card.queued').length;
@@ -48,6 +64,8 @@ export function createStreamCard(streamId) {
                     updateLatencyVisualization(streamId, latency);
                 }
             }
+            
+            container.scrollTop = container.scrollHeight;
         }
     };
 }
@@ -63,8 +81,8 @@ function updateRetention() {
     const container = getEl("streams-container");
     if (!container) return;
     const completedCards = Array.from(container.querySelectorAll('.stream-card.completed'));
-    if (completedCards.length > 20) {
-        const toRemove = completedCards.length - 20;
+    if (completedCards.length > 50) {
+        const toRemove = completedCards.length - 50;
         for (let i = 0; i < toRemove; i++) {
             completedCards[i].remove();
         }
