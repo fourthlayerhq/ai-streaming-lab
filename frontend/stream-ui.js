@@ -1,100 +1,66 @@
 import { getEl, createEl } from './dom.js';
-import { updateConcurrencyVisualization, updateLatencyVisualization } from './metrics.js';
 
-const streamStates = new Map();
-let totalEvents = 0;
+let lastRenderedTimestamp = null;
+let totalEventsSeen = 0;
 
-function getFormattedTime() {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+function formatTimestamp(isoString) {
+    const d = new Date(isoString);
+    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}.${d.getMilliseconds().toString().padStart(3, '0')}`;
 }
 
-function appendEventLog(streamId, eventName, detailsStr = "") {
+export function renderEvents(events) {
+    if (!events || events.length === 0) return;
+
     const container = getEl("streams-container");
     if (!container) return;
-    
-    const logLine = createEl("div");
-    logLine.className = `stream-log-line event-${eventName}`;
-    
-    let message = "";
-    if (eventName === 'queued') message = `stream-${streamId} queued`;
-    else if (eventName === 'assigned') message = `slot assigned &rarr; stream-${streamId}`;
-    else if (eventName === 'first_token') message = `stream-${streamId} first token received ${detailsStr}`;
-    else if (eventName === 'completed') message = `stream-${streamId} completed ${detailsStr}`;
-    else if (eventName === 'error') message = `stream-${streamId} error ${detailsStr}`;
-    else message = `stream-${streamId} ${eventName} ${detailsStr}`;
-    
-    logLine.innerHTML = `
-        <span class="timestamp">[${getFormattedTime()}]</span>
-        <span class="log-message">${message}</span>
-    `;
-    
-    container.appendChild(logLine);
-    
-    totalEvents++;
-    const countEl = getEl("event-count");
-    if (countEl) countEl.innerText = `${totalEvents} EVENTS`;
-    
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
-    if (isNearBottom) {
-        container.scrollTop = container.scrollHeight;
-    }
-    
-    updateRetention();
-}
 
-function recalculateConcurrency() {
-    let active = 0;
-    let queued = 0;
-    for (const state of streamStates.values()) {
-        if (state === 'queued') queued++;
-        if (state === 'active') active++;
-    }
-    updateConcurrencyVisualization(active, queued);
-}
-
-export function createStreamCard(streamId) {
-    streamStates.set(streamId, 'initializing');
-    
-    const startTime = performance.now();
-    let firstTokenTime = null;
-    
-    return {
-        appendToken: (token) => {
-            if (!firstTokenTime) {
-                firstTokenTime = performance.now();
-                const latency = Math.round(firstTokenTime - startTime);
-                appendEventLog(streamId, 'first_token', `(${latency}ms)`);
-            }
-        },
-        updateStatus: (statusText) => {
-            const state = statusText.toLowerCase();
-            streamStates.set(streamId, state);
-            
-            recalculateConcurrency();
-            
-            if (state === 'queued') {
-                appendEventLog(streamId, 'queued');
-            } else if (state === 'active') {
-                appendEventLog(streamId, 'assigned');
-            } else if (state === 'completed') {
-                let durationStr = "";
-                if (firstTokenTime) {
-                    const duration = ((performance.now() - startTime) / 1000).toFixed(1);
-                    durationStr = `in ${duration}s`;
-                    const latency = Math.round(firstTokenTime - startTime);
-                    updateLatencyVisualization(streamId, latency);
-                }
-                appendEventLog(streamId, 'completed', durationStr);
-                streamStates.delete(streamId);
-                recalculateConcurrency();
-            } else if (state === 'error') {
-                appendEventLog(streamId, 'error');
-                streamStates.delete(streamId);
-                recalculateConcurrency();
+    // Find the index of the first new event
+    let startIndex = 0;
+    if (lastRenderedTimestamp) {
+        for (let i = events.length - 1; i >= 0; i--) {
+            if (events[i].timestamp === lastRenderedTimestamp) {
+                startIndex = i + 1;
+                break;
             }
         }
-    };
+        // If we didn't find the last rendered, it means they cycled out. We'll just render all.
+    }
+
+    let addedAny = false;
+
+    for (let i = startIndex; i < events.length; i++) {
+        const ev = events[i];
+        
+        const logLine = createEl("div");
+        logLine.className = `stream-log-line event-${ev.type}`;
+        
+        let message = `stream-${ev.stream_id.substring(0, 5)} ${ev.type} ${ev.details}`;
+        
+        logLine.innerHTML = `
+            <span class="timestamp">[${formatTimestamp(ev.timestamp)}]</span>
+            <span class="log-message">${message}</span>
+        `;
+        
+        container.appendChild(logLine);
+        addedAny = true;
+        totalEventsSeen++;
+        lastRenderedTimestamp = ev.timestamp;
+    }
+
+    if (addedAny) {
+        const countEl = getEl("event-count");
+        if (countEl) countEl.innerText = `${totalEventsSeen} EVENTS`;
+
+        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+        if (isNearBottom) {
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Limit DOM nodes
+        while (container.children.length > 300) {
+            container.removeChild(container.firstChild);
+        }
+    }
 }
 
 export function clearStreamsContainer() {
@@ -102,21 +68,10 @@ export function clearStreamsContainer() {
     if (container) {
         container.innerHTML = "";
     }
-    streamStates.clear();
-    totalEvents = 0;
+    lastRenderedTimestamp = null;
+    totalEventsSeen = 0;
     const countEl = getEl("event-count");
     if (countEl) countEl.innerText = `0 EVENTS`;
-    recalculateConcurrency();
-}
-
-function updateRetention() {
-    const container = getEl("streams-container");
-    if (!container) return;
-    
-    // Limit total log lines to 250 to keep DOM light but preserve recent history
-    while (container.children.length > 250) {
-        container.removeChild(container.firstChild);
-    }
 }
 
 export function setResponseBox(text) {

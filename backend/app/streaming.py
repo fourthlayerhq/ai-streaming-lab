@@ -9,6 +9,44 @@ from .stream_manager import stream_manager
 from .queue_manager import stream_semaphore
 
 
+async def background_stream_task(startup_delay=0, token_delay=0.1):
+    session = StreamSession(
+        id=str(uuid.uuid4()),
+        started_at=datetime.utcnow(),
+    )
+    stream_manager.create_session(session)
+    is_completed = False
+    try:
+        async with stream_semaphore:
+            stream_manager.assign_worker(session.id)
+            first_token_sent = False
+            from .fake_llm import StreamingFailure
+            try:
+                async for token in fake_token_generator(
+                    startup_delay=startup_delay,
+                    token_delay=token_delay,
+                    config=stream_manager.config
+                ):
+                    if token == "[DONE]":
+                        is_completed = True
+                        stream_manager.complete_session(session.id)
+                        break
+
+                    if not first_token_sent:
+                        stream_manager.mark_first_token(session.id)
+                        first_token_sent = True
+
+                    stream_manager.increment_token(session.id)
+            except StreamingFailure as e:
+                is_completed = True
+                stream_manager.fail_session(session.id, str(e))
+    except Exception as e:
+        is_completed = True
+        stream_manager.fail_session(session.id, str(e))
+    finally:
+        if not is_completed:
+            stream_manager.fail_session(session.id, "disconnected")
+
 async def stream_response(
     startup_delay=0,
     token_delay=0.1,
@@ -23,11 +61,8 @@ async def stream_response(
 
         stream_manager.create_session(session)
 
-        is_queued = False
+        is_completed = False
         try:
-
-            stream_manager.increment_queue()
-            is_queued = True
 
             yield {
                 "event": "status",
@@ -36,9 +71,7 @@ async def stream_response(
 
             async with stream_semaphore:
 
-                if is_queued:
-                    stream_manager.decrement_queue()
-                    is_queued = False
+                stream_manager.assign_worker(session.id)
 
                 yield {
                     "event": "status",
@@ -67,6 +100,8 @@ async def stream_response(
                                 "data": "completed",
                             }
 
+                            is_completed = True
+                            stream_manager.complete_session(session.id)
                             break
 
                         if not first_token_sent:
@@ -86,6 +121,8 @@ async def stream_response(
                             "data": token,
                         }
                 except StreamingFailure as e:
+                    is_completed = True
+                    stream_manager.fail_session(session.id, str(e))
                     yield {
                         "event": "status",
                         "data": "error",
@@ -96,8 +133,7 @@ async def stream_response(
                     }
 
         finally:
-            if is_queued:
-                stream_manager.decrement_queue()
-            stream_manager.complete_session(session.id)
+            if not is_completed:
+                stream_manager.fail_session(session.id, "disconnected")
 
     return EventSourceResponse(event_generator())

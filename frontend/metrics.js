@@ -1,41 +1,27 @@
 import { getEl, createEl } from './dom.js';
 
-const LATENCY_HISTORY_MAX = 20;
-const latencyHistory = [];
-
-export function updateLatencyVisualization(streamId, latencyMs) {
-    latencyHistory.push({ id: streamId, val: latencyMs });
-    if (latencyHistory.length > LATENCY_HISTORY_MAX) {
-        latencyHistory.shift();
-    }
-
+export function updateLatencyVisualization(history) {
     const container = getEl("latency-history-bars");
     if (!container) return;
     
     container.innerHTML = "";
     
-    const validHistory = latencyHistory.filter(item => item.val > 0).map(item => item.val);
-    const minLatency = validHistory.length > 0 ? Math.min(...validHistory) : 0;
-    const maxLatency = validHistory.length > 0 ? Math.max(...validHistory) : 100;
+    if (!history || history.length === 0) return;
     
-    // Ensure we don't divide by zero and scale effectively
+    const minLatency = Math.min(...history.map(i => i.first_token_ms));
+    const maxLatency = Math.max(...history.map(i => i.first_token_ms));
     const range = Math.max(maxLatency - minLatency, 10);
 
-    latencyHistory.forEach(item => {
+    history.forEach(item => {
         const bar = createEl("div");
         bar.className = "latency-bar";
         
-        if (item.val === 0) {
-            bar.style.opacity = "0.2";
-            bar.style.height = "2%"; // minimal height to show existence
-        } else {
-            const normalized = Math.max(0, Math.min(1, (item.val - minLatency) / range));
-            const exaggerated = Math.pow(normalized, 1.5); // Exaggerate spikes
-            const heightPct = 5 + (exaggerated * 95);
-            bar.style.height = `${Math.min(heightPct, 100)}%`;
-        }
+        const normalized = Math.max(0, Math.min(1, (item.first_token_ms - minLatency) / range));
+        const exaggerated = Math.pow(normalized, 1.5);
+        const heightPct = 5 + (exaggerated * 95);
+        bar.style.height = `${Math.min(heightPct, 100)}%`;
         
-        bar.setAttribute('data-tooltip', `stream-${item.id.substring(0, 5)}\nfirst token: ${item.val}ms`);
+        bar.setAttribute('data-tooltip', `stream-${item.stream_id.substring(0, 5)}\nfirst token: ${item.first_token_ms}ms\ncompleted: ${item.completed_duration_s}s`);
         container.appendChild(bar);
     });
 }
@@ -46,23 +32,20 @@ export function updateConcurrencyVisualization(metrics) {
     
     slotsContainer.innerHTML = "";
     
-    const activeCount = metrics.active_streams;
-    const queuedCount = metrics.queued_streams;
-    const maxSlots = metrics.max_concurrent_slots || 3;
-    const activeDetails = metrics.active_details || {};
-    
-    const activeIds = Object.keys(activeDetails);
+    const activeCount = metrics.active.length;
+    const queuedCount = metrics.queued.length;
+    const maxSlots = metrics.max_slots || 3;
+    const workers = metrics.workers || [];
     
     for (let i = 1; i <= maxSlots; i++) {
         const slot = createEl("div");
-        if (i <= activeIds.length) {
-            const sid = activeIds[i-1];
-            const details = activeDetails[sid];
-            const shortId = sid.substring(0, 5);
+        if (i <= workers.length) {
+            const worker = workers[i-1];
+            const shortId = worker.stream_id.substring(0, 5);
             slot.className = "slot active-slot";
             slot.innerHTML = `
                 <div class="slot-id">[SLOT ${i}] str-${shortId}</div>
-                <div class="slot-metrics">active ${details.active_time}s</div>
+                <div class="slot-metrics">active ${worker.active_time}s</div>
             `;
         } else {
             slot.className = "slot empty-slot";
@@ -94,19 +77,33 @@ export function updateConcurrencyVisualization(metrics) {
     }
 }
 
+import { renderEvents } from './stream-ui.js';
+
 export async function fetchMetrics() {
     try {
         const response = await fetch("http://127.0.0.1:8000/metrics");
         const metrics = await response.json();
 
-        getEl("active-streams").innerText = metrics.active_streams;
-        getEl("completed-streams").innerText = metrics.completed_streams;
-        getEl("avg-tokens").innerText = metrics.avg_tokens_per_stream;
-        getEl("first-token-latency").innerText = `${metrics.avg_first_token_ms} ms`;
-        getEl("queued-streams").innerText = metrics.queued_streams;
-        getEl("throughput").innerText = metrics.throughput_sec.toFixed(1);
+        // The endpoint is actually get_metrics which returns the full dictionary 
+        // including active_streams etc under the root, OR wait:
+        // Let's check `get_metrics` output in backend:
+        // "queued", "active", "completed", "failed", "workers", "metrics", "events", "max_slots"
+        
+        getEl("active-streams").innerText = metrics.active.length;
+        getEl("completed-streams").innerText = metrics.completed.length;
+        getEl("avg-tokens").innerText = metrics.metrics.avgTokens;
+        getEl("first-token-latency").innerText = `${metrics.metrics.avgFirstTokenMs} ms`;
+        getEl("queued-streams").innerText = metrics.queued.length;
+        getEl("throughput").innerText = metrics.metrics.throughput.toFixed(1);
         
         updateConcurrencyVisualization(metrics);
+        updateLatencyVisualization(metrics.metrics.latencyHistory);
+        renderEvents(metrics.events);
+        
+        const debugEl = getEl("debug-output");
+        if (debugEl) {
+            debugEl.innerText = `queued: ${metrics.queued.length}\nactive: ${metrics.active.length}\ncompleted: ${metrics.completed.length}\nfailed: ${metrics.failed.length}\nworkers occupied: ${metrics.workers.length}/${metrics.max_slots}`;
+        }
     } catch (err) {
         console.error("Error fetching metrics:", err);
     }

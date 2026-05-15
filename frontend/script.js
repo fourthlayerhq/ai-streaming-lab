@@ -1,6 +1,6 @@
 import { getEl } from './dom.js';
 import { createStream } from './stream-client.js';
-import { createStreamCard, clearStreamsContainer, setResponseBox, appendToResponseBox } from './stream-ui.js';
+import { setResponseBox, appendToResponseBox } from './stream-ui.js';
 import { resetMetrics, startMetricsPolling } from './metrics.js';
 
 const normalBtn = getEl("normal-btn");
@@ -79,18 +79,18 @@ streamBtn.addEventListener("click", () => {
 });
 
 async function launchConcurrentStreams(count) {
-    clearStreamsContainer();
-
-    const startupDelay = startupDelayInput.value;
-    const tokenDelay = tokenDelayInput.value;
-
-    for (let i = 1; i <= count; i++) {
-        const cardUI = createStreamCard(i);
-        
-        createStream(`http://127.0.0.1:8000/stream-response?startup_delay=${startupDelay}&token_delay=${tokenDelay}`, {
-            onMessage: (data) => cardUI.appendToken(data),
-            onStatus: (data) => cardUI.updateStatus(data)
+    try {
+        await fetch("http://127.0.0.1:8000/launch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                count: count,
+                startup_delay: Number(startupDelayInput.value),
+                token_delay: Number(tokenDelayInput.value)
+            })
         });
+    } catch (e) {
+        console.error("Launch error:", e);
     }
 }
 
@@ -102,7 +102,6 @@ simulateBtn.addEventListener("click", async () => {
 
 resetBtn.addEventListener("click", async () => {
     await resetMetrics();
-    clearStreamsContainer();
 });
 
 startMetricsPolling();

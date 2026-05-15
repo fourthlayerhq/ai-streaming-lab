@@ -1,10 +1,10 @@
 import asyncio
 from pydantic import BaseModel
 
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 
-from .streaming import stream_response
+from .streaming import stream_response, background_stream_task
 from .stream_manager import stream_manager
 from .queue_manager import stream_semaphore
 
@@ -74,3 +74,18 @@ async def update_config(config: ConfigUpdate):
         stream_manager.config["slow_stream_prob"] = config.slow_stream_prob
         
     return {"status": "updated"}
+
+class LaunchRequest(BaseModel):
+    count: int
+    startup_delay: int
+    token_delay: int
+
+@app.post("/launch")
+async def launch_streams(req: LaunchRequest, background_tasks: BackgroundTasks):
+    for _ in range(req.count):
+        background_tasks.add_task(
+            background_stream_task,
+            startup_delay=req.startup_delay / 1000.0,
+            token_delay=req.token_delay / 1000.0
+        )
+    return {"status": "launched", "count": req.count}
