@@ -43,4 +43,10 @@ Tracks:
 - completed streams
 - average first token latency
 - token counts
-```
+
+## Stream Lifecycle Visualization
+
+Each stream moves through visible lifecycle states:
+
+```txt
+queued → active → completed
