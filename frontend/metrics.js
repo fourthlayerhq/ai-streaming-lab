@@ -114,8 +114,12 @@ export async function resetMetrics() {
         await fetch("http://127.0.0.1:8000/reset-metrics", {
             method: "POST"
         });
-        const container = getEl("latency-history-bars");
-        if (container) container.innerHTML = "";
+
+        const latencyContainer = getEl("latency-history-bars");
+        if (latencyContainer) latencyContainer.innerHTML = "";
+
+        await fetchMetrics();
+
     } catch (err) {
         console.error("Error resetting metrics:", err);
     }

@@ -1,7 +1,7 @@
 import asyncio
 from pydantic import BaseModel
 
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .streaming import stream_response, background_stream_task
@@ -81,11 +81,17 @@ class LaunchRequest(BaseModel):
     token_delay: int
 
 @app.post("/launch")
-async def launch_streams(req: LaunchRequest, background_tasks: BackgroundTasks):
+async def launch_streams(req: LaunchRequest):
+
     for _ in range(req.count):
-        background_tasks.add_task(
-            background_stream_task,
-            startup_delay=req.startup_delay / 1000.0,
-            token_delay=req.token_delay / 1000.0
+        asyncio.create_task(
+            background_stream_task(
+                startup_delay=req.startup_delay / 1000.0,
+                token_delay=req.token_delay / 1000.0
+            )
         )
-    return {"status": "launched", "count": req.count}
+
+    return {
+        "status": "launched",
+        "count": req.count
+    }

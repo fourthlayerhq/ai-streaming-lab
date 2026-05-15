@@ -1,7 +1,5 @@
 from datetime import datetime
 from .queue_manager import stream_semaphore
-import random
-import uuid
 
 class StreamManager:
 

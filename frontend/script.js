@@ -1,6 +1,6 @@
 import { getEl } from './dom.js';
 import { createStream } from './stream-client.js';
-import { setResponseBox, appendToResponseBox } from './stream-ui.js';
+import { setResponseBox, appendToResponseBox, clearStreamsContainer } from './stream-ui.js';
 import { resetMetrics, startMetricsPolling } from './metrics.js';
 
 const normalBtn = getEl("normal-btn");
@@ -102,6 +102,7 @@ simulateBtn.addEventListener("click", async () => {
 
 resetBtn.addEventListener("click", async () => {
     await resetMetrics();
+    clearStreamsContainer();
 });
 
 startMetricsPolling();

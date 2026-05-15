@@ -34,7 +34,7 @@
 
         <div id="section-concurrent" class="tab-content">
             <div class="dashboard-grid">
-                
+
                 <div class="dashboard-top-row">
                     <div class="controls-panel">
                         <div class="control-row">
@@ -63,7 +63,7 @@
                             <button id="simulate-btn" class="btn-primary">Launch</button>
                             <button id="reset-btn">Reset</button>
                         </div>
-                        
+
                         <details class="simulation-controls">
                             <summary>Failure Injection</summary>
                             <div class="sim-grid">
@@ -85,13 +85,16 @@
                                 </div>
                             </div>
                         </details>
-                        
-                        <details class="debug-panel" style="margin-top: 8px; border-top: 1px solid #333; padding-top: 8px;">
-                            <summary style="font-size: 11px; color: #888; cursor: pointer; text-transform: uppercase;">Debug Runtime State</summary>
-                            <pre id="debug-output" style="font-size: 10px; color: #aaa; margin-top: 6px; white-space: pre-wrap; font-family: monospace;"></pre>
+
+                        <details class="debug-panel"
+                            style="margin-top: 8px; border-top: 1px solid #333; padding-top: 8px;">
+                            <summary style="font-size: 11px; color: #888; cursor: pointer; text-transform: uppercase;">
+                                Debug Runtime State</summary>
+                            <pre id="debug-output"
+                                style="font-size: 10px; color: #aaa; margin-top: 6px; white-space: pre-wrap; font-family: monospace;"></pre>
                         </details>
                     </div>
-                    
+
                     <div id="metrics-dashboard">
                         <div class="metric-card">
                             <h3>Active</h3>
@@ -115,7 +118,8 @@
                         </div>
                         <div class="metric-card">
                             <h3>Throughput</h3>
-                            <p><span id="throughput">0.0</span> <span style="font-size: 10px; color: #888;">s/sec</span></p>
+                            <p><span id="throughput">0.0</span> <span style="font-size: 10px; color: #888;">s/sec</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -147,7 +151,8 @@
                             <div class="header-title-group">
                                 <h2>Realtime System Activity</h2>
                                 <span class="live-indicator"><span class="pulse"></span> LIVE</span>
-                                <span id="event-count" style="font-size: 12px; color: #666; font-family: monospace;">0 EVENTS</span>
+                                <span id="event-count" style="font-size: 12px; color: #666; font-family: monospace;">0
+                                    EVENTS</span>
                             </div>
                             <span class="retention-indicator">Append-only runtime event log</span>
                         </div>
@@ -156,6 +161,7 @@
                 </div>
 
             </div>
+        </div>
     </div>
 
     <script type="module" src="script.js"></script>
