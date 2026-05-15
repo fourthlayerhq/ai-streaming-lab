@@ -137,17 +137,25 @@ h2 {
 .dashboard-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     margin-top: 0px;
     height: 100%;
     min-height: 0;
 }
 
-.dashboard-top-row, .dashboard-middle-row {
+.dashboard-top-row {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 12px;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
     align-items: stretch;
+    flex-shrink: 0;
+}
+
+.dashboard-middle-row {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    align-items: start;
     flex-shrink: 0;
 }
 
@@ -162,11 +170,11 @@ h2 {
 .controls-panel {
     background: #151515;
     border: 1px solid #333;
-    border-radius: 6px;
-    padding: 8px 12px;
+    border-radius: 8px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 .control-row {
     display: flex;
@@ -174,33 +182,34 @@ h2 {
     align-items: center;
 }
 .control-row label {
-    font-size: 12px;
+    font-size: 13px;
     color: #ccc;
 }
 .control-row input {
-    width: 50px;
+    width: 60px;
     background: #222;
     border: 1px solid #444;
     color: white;
-    padding: 2px 6px;
+    padding: 6px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
 }
 .control-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 2px;
+    gap: 10px;
+    margin-top: 8px;
 }
 .control-actions button {
     flex: 1;
-    padding: 4px;
-    font-size: 11px;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: bold;
 }
 
 /* Metrics Dashboard */
 #metrics-dashboard {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-top: 0;
     align-items: stretch;
 }
@@ -208,8 +217,8 @@ h2 {
 .metric-card {
     background: #151515;
     border: 1px solid #333;
-    border-radius: 6px;
-    padding: 6px 10px;
+    border-radius: 8px;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -218,48 +227,52 @@ h2 {
 }
 
 .metric-card h3 {
-    margin: 0 0 2px 0;
-    font-size: 10px;
+    margin: 0 0 6px 0;
+    font-size: 11px;
     color: #888;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .metric-card p {
     margin: 0;
-    font-size: 14px;
+    font-size: 24px;
     font-weight: bold;
     color: #00ff90;
 }
 
 .concurrency-visualization {
     margin-top: 0;
-    padding: 8px 12px;
+    padding: 16px;
     background: #151515;
     border: 1px solid #333;
-    border-radius: 6px;
-    height: 140px;
+    border-radius: 8px;
+    height: auto;
+    max-height: 200px;
     overflow-y: auto;
     box-sizing: border-box;
 }
 
 .concurrency-visualization h3 {
     margin-top: 0;
-    margin-bottom: 6px;
-    font-size: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
     color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 #concurrency-slots {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 .slot {
-    padding: 2px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: bold;
     font-family: monospace;
     border: 1px solid #333;
@@ -277,18 +290,18 @@ h2 {
 }
 
 .queue-status {
-    font-size: 11px;
+    font-size: 12px;
     color: #d97706;
     font-weight: bold;
 }
 
 .latency-history-section {
     margin-top: 0;
-    padding: 8px 12px;
+    padding: 16px;
     background: #151515;
     border: 1px solid #333;
-    border-radius: 6px;
-    height: 140px;
+    border-radius: 8px;
+    height: 200px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -296,16 +309,18 @@ h2 {
 
 .latency-history-section h3 {
     margin-top: 0;
-    margin-bottom: 2px;
-    font-size: 12px;
+    margin-bottom: 4px;
+    font-size: 13px;
     color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .latency-helper-text {
-    font-size: 10px;
+    font-size: 12px;
     color: #666;
     margin-top: 0;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
 }
 
 #latency-history-bars {
@@ -320,8 +335,8 @@ h2 {
 .latency-bar {
     flex: 1;
     background: #00ff90;
-    min-width: 6px;
-    border-radius: 2px 2px 0 0;
+    min-width: 8px;
+    border-radius: 3px 3px 0 0;
     transition: height 0.3s ease;
 }
 
@@ -329,8 +344,8 @@ h2 {
 .terminal-panel-wrapper {
     background: #151515;
     border: 1px solid #333;
-    border-radius: 6px;
-    padding: 8px 12px;
+    border-radius: 8px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -342,32 +357,32 @@ h2 {
     flex-direction: column;
     background: #000;
     border: 1px solid #222;
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: 6px;
+    padding: 12px;
     margin-top: 0;
     flex-grow: 1;
     min-height: 0;
     overflow-y: auto;
-    gap: 2px;
+    gap: 4px;
 }
 
 .stream-log-line {
     display: flex;
     align-items: flex-start;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .timestamp {
     color: #555;
-    font-size: 12px;
-    margin-right: 10px;
+    font-size: 13px;
+    margin-right: 12px;
     white-space: nowrap;
     font-family: 'Courier New', Courier, monospace;
 }
 
 .log-message {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
+    font-size: 14px;
     word-break: break-all;
 }
 

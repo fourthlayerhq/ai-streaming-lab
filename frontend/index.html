@@ -34,69 +34,80 @@
 
         <div id="section-concurrent" class="tab-content">
             <div class="dashboard-grid">
-            <div class="controls-panel">
-                <div class="control-row">
-                    <label>Count:</label>
-                    <input type="number" id="stream-count" min="1" max="100" value="5" />
+                
+                <div class="dashboard-top-row">
+                    <div class="controls-panel">
+                        <div class="control-row">
+                            <label>Count:</label>
+                            <input type="number" id="stream-count" min="1" max="100" value="5" />
+                        </div>
+                        <div class="control-row">
+                            <label>Startup (ms):</label>
+                            <input type="number" id="startup-delay" value="500" />
+                        </div>
+                        <div class="control-row">
+                            <label>Token (ms):</label>
+                            <input type="number" id="token-delay" value="100" />
+                        </div>
+                        <div class="control-actions">
+                            <button id="simulate-btn" class="btn-primary">Launch</button>
+                            <button id="reset-btn">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div id="metrics-dashboard">
+                        <div class="metric-card">
+                            <h3>Active</h3>
+                            <p id="active-streams">0</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Queued</h3>
+                            <p id="queued-streams">0</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Completed</h3>
+                            <p id="completed-streams">0</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Avg Tokens</h3>
+                            <p id="avg-tokens">0</p>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Latency</h3>
+                            <p id="first-token-latency">0 ms</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="control-row">
-                    <label>Startup (ms):</label>
-                    <input type="number" id="startup-delay" value="500" />
-                </div>
-                <div class="control-row">
-                    <label>Token (ms):</label>
-                    <input type="number" id="token-delay" value="100" />
-                </div>
-                <div class="control-actions">
-                    <button id="simulate-btn" class="btn-primary">Launch</button>
-                    <button id="reset-btn">Reset</button>
-                </div>
-            </div>
 
-            <div id="metrics-dashboard">
-                <div class="metric-card">
-                    <h3>Active</h3>
-                    <p id="active-streams">0</p>
-                </div>
-                <div class="metric-card">
-                    <h3>Queued</h3>
-                    <p id="queued-streams">0</p>
-                </div>
-                <div class="metric-card">
-                    <h3>Completed</h3>
-                    <p id="completed-streams">0</p>
-                </div>
-                <div class="metric-card">
-                    <h3>Avg Tokens</h3>
-                    <p id="avg-tokens">0</p>
-                </div>
-                <div class="metric-card">
-                    <h3>Latency</h3>
-                    <p id="first-token-latency">0 ms</p>
-                </div>
-            </div>
-        <div class="concurrency-visualization">
-            <h3>Concurrency Slots</h3>
-            <div id="concurrency-slots"></div>
-            <div class="queue-status">Queue: <span id="slot-queue-count">0</span> waiting</div>
-        </div>
+                <div class="dashboard-middle-row">
+                    <div class="concurrency-visualization">
+                        <h3>Concurrency Slots</h3>
+                        <div id="concurrency-slots"></div>
+                        <div class="queue-status">Queue: <span id="slot-queue-count">0</span> waiting</div>
+                    </div>
 
-        <div class="latency-history-section">
-            <h3>Latency History</h3>
-            <p class="latency-helper-text">Each bar represents first-token latency of a completed stream</p>
-            <div id="latency-history-bars"></div>
-        </div>
+                    <div class="latency-history-section">
+                        <h3>Latency History</h3>
+                        <p class="latency-helper-text">Each bar represents first-token latency of a completed stream</p>
+                        <div id="latency-history-bars"></div>
+                    </div>
+                </div>
 
-        <div class="stream-grid-header">
-            <div class="header-title-group">
-                <h2>Realtime System Activity</h2>
-                <span class="live-indicator"><span class="pulse"></span> LIVE</span>
-                <span id="event-count" style="font-size: 12px; color: #666; font-family: monospace;">0 EVENTS</span>
+                <div class="dashboard-bottom-row">
+                    <div class="terminal-panel-wrapper">
+                        <div class="stream-grid-header">
+                            <div class="header-title-group">
+                                <h2>Realtime System Activity</h2>
+                                <span class="live-indicator"><span class="pulse"></span> LIVE</span>
+                                <span id="event-count" style="font-size: 12px; color: #666; font-family: monospace;">0 EVENTS</span>
+                            </div>
+                            <span class="retention-indicator">Append-only runtime event log</span>
+                        </div>
+                        <div id="streams-container"></div>
+                    </div>
+                </div>
+
             </div>
-            <span class="retention-indicator">Append-only runtime event log</span>
-        </div>
-        <div id="streams-container"></div>
-        </div>
     </div>
 
     <script type="module" src="script.js"></script>
