@@ -30,6 +30,20 @@ Same backend latency.
 
 Very different user experience.
 
+### Concurrent Streaming Simulation
+
+The system can launch multiple simultaneous AI streams to simulate real-world concurrency.
+
+It tracks:
+
+- active streams
+- queued streams
+- completed streams
+- average tokens per stream
+- first token latency
+
+This demonstrates how streaming systems behave under load and why concurrency management becomes important in real-time AI infrastructure.
+
 ---
 
 ## Why This Matters
@@ -50,10 +64,19 @@ But also:
 
 ## Architecture
 
-Frontend
-→ FastAPI Backend
-→ SSE Streaming
-→ Fake Token Generator
+```txt
+Frontend UI
+    ↓
+FastAPI Backend
+    ↓
+SSE Streaming Endpoint
+    ↓
+Concurrency Limiter (Semaphore)
+    ↓
+Fake Token Generator
+    ↓
+Stream Metrics Manager
+```
 
 ---
 
@@ -118,7 +141,6 @@ This repo intentionally keeps architecture minimal and focused.
 
 - Real LLM integration
 - Redis queues
-- Concurrent streaming
 - Observability
 - Retry handling
 - Rate limiting
