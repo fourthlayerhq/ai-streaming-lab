@@ -66,12 +66,16 @@ function createStreamCard(streamId) {
 
     card.innerHTML = `
         <h4>Stream ${streamId}</h4>
+        <div class="stream-status">Status: initializing</div>
         <div class="stream-output"></div>
     `;
 
     streamsContainer.appendChild(card);
 
-    return card.querySelector(".stream-output");
+    return {
+        output: card.querySelector(".stream-output"),
+        status: card.querySelector(".stream-status")
+    };
 }
 
 async function launchConcurrentStreams(count) {
@@ -80,7 +84,7 @@ async function launchConcurrentStreams(count) {
 
     for (let i = 1; i <= count; i++) {
 
-        const output = createStreamCard(i);
+        const { output, status } = createStreamCard(i);
         const startupDelay =
             startupDelayInput.value;
 
@@ -93,6 +97,10 @@ async function launchConcurrentStreams(count) {
         eventSource.onmessage = (event) => {
             output.innerHTML += event.data;
         };
+
+        eventSource.addEventListener("status", (event) => {
+            status.innerText = `Status: ${event.data}`;
+        });
 
         eventSource.addEventListener("done", () => {
             eventSource.close();

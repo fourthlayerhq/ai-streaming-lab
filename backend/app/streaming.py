@@ -8,6 +8,7 @@ from .models import StreamSession
 from .stream_manager import stream_manager
 from .queue_manager import stream_semaphore
 
+
 async def stream_response(
     startup_delay=0,
     token_delay=0.1,
@@ -26,9 +27,19 @@ async def stream_response(
 
             stream_manager.increment_queue()
 
+            yield {
+                "event": "status",
+                "data": "queued",
+            }
+
             async with stream_semaphore:
 
                 stream_manager.decrement_queue()
+
+                yield {
+                    "event": "status",
+                    "data": "active",
+                }
 
                 first_token_sent = False
 
@@ -38,6 +49,11 @@ async def stream_response(
                 ):
 
                     if token == "[DONE]":
+
+                        yield {
+                            "event": "status",
+                            "data": "completed",
+                        }
 
                         yield {
                             "event": "done",
