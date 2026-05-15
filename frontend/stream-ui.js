@@ -45,7 +45,7 @@ export function createStreamCard(streamId) {
                 updateRetention();
                 if (firstTokenTime) {
                     const latency = Math.round(firstTokenTime - startTime);
-                    updateLatencyVisualization(latency);
+                    updateLatencyVisualization(streamId, latency);
                 }
             }
         }

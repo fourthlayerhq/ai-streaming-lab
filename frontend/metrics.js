@@ -3,8 +3,8 @@ import { getEl, createEl } from './dom.js';
 const LATENCY_HISTORY_MAX = 20;
 const latencyHistory = [];
 
-export function updateLatencyVisualization(latencyMs) {
-    latencyHistory.push(latencyMs);
+export function updateLatencyVisualization(streamId, latencyMs) {
+    latencyHistory.push({ id: streamId, val: latencyMs });
     if (latencyHistory.length > LATENCY_HISTORY_MAX) {
         latencyHistory.shift();
     }
@@ -14,28 +14,28 @@ export function updateLatencyVisualization(latencyMs) {
     
     container.innerHTML = "";
     
-    const validHistory = latencyHistory.filter(v => v > 0);
+    const validHistory = latencyHistory.filter(item => item.val > 0).map(item => item.val);
     const minLatency = validHistory.length > 0 ? Math.min(...validHistory) : 0;
     const maxLatency = validHistory.length > 0 ? Math.max(...validHistory) : 100;
     
     // Ensure we don't divide by zero and scale effectively
     const range = Math.max(maxLatency - minLatency, 10);
 
-    latencyHistory.forEach(val => {
+    latencyHistory.forEach(item => {
         const bar = createEl("div");
         bar.className = "latency-bar";
         
-        if (val === 0) {
+        if (item.val === 0) {
             bar.style.opacity = "0.2";
             bar.style.height = "2%"; // minimal height to show existence
         } else {
-            const normalized = Math.max(0, Math.min(1, (val - minLatency) / range));
+            const normalized = Math.max(0, Math.min(1, (item.val - minLatency) / range));
             const exaggerated = Math.pow(normalized, 1.5); // Exaggerate spikes
             const heightPct = 5 + (exaggerated * 95);
             bar.style.height = `${Math.min(heightPct, 100)}%`;
         }
         
-        bar.title = `${val} ms`;
+        bar.title = `Stream ${item.id}\nLatency: ${item.val} ms`;
         container.appendChild(bar);
     });
 }

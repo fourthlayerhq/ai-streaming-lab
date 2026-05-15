@@ -23,9 +23,11 @@ async def stream_response(
 
         stream_manager.create_session(session)
 
+        is_queued = False
         try:
 
             stream_manager.increment_queue()
+            is_queued = True
 
             yield {
                 "event": "status",
@@ -34,7 +36,9 @@ async def stream_response(
 
             async with stream_semaphore:
 
-                stream_manager.decrement_queue()
+                if is_queued:
+                    stream_manager.decrement_queue()
+                    is_queued = False
 
                 yield {
                     "event": "status",
@@ -80,6 +84,8 @@ async def stream_response(
                     }
 
         finally:
+            if is_queued:
+                stream_manager.decrement_queue()
             stream_manager.complete_session(session.id)
 
     return EventSourceResponse(event_generator())

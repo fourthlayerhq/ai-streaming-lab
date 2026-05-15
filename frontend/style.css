@@ -255,9 +255,16 @@ h2 {
 
 .latency-history-section h3 {
     margin-top: 0;
-    margin-bottom: 12px;
+    margin-bottom: 5px;
     font-size: 14px;
     color: #888;
+}
+
+.latency-helper-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 12px;
 }
 
 #latency-history-bars {

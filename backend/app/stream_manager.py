@@ -84,7 +84,8 @@ class StreamManager:
 
 
     def decrement_queue(self):
-        self.queued_streams -= 1
+        if self.queued_streams > 0:
+            self.queued_streams -= 1
 
 
 stream_manager = StreamManager()
