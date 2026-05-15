@@ -11,6 +11,26 @@ const startupDelayInput = getEl("startup-delay");
 const tokenDelayInput = getEl("token-delay");
 const resetBtn = getEl("reset-btn");
 
+// TABS LOGIC
+const tabBasics = getEl("tab-basics");
+const tabConcurrent = getEl("tab-concurrent");
+const sectionBasics = getEl("section-basics");
+const sectionConcurrent = getEl("section-concurrent");
+
+tabBasics.addEventListener("click", () => {
+    tabBasics.classList.add("active");
+    tabConcurrent.classList.remove("active");
+    sectionBasics.style.display = "block";
+    sectionConcurrent.style.display = "none";
+});
+
+tabConcurrent.addEventListener("click", () => {
+    tabConcurrent.classList.add("active");
+    tabBasics.classList.remove("active");
+    sectionConcurrent.style.display = "block";
+    sectionBasics.style.display = "none";
+});
+
 // NORMAL RESPONSE
 normalBtn.addEventListener("click", async () => {
     setResponseBox("[Normal Response]\n\nWaiting for full response...\n");

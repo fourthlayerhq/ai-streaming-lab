@@ -3,7 +3,7 @@ import { getEl, createEl } from './dom.js';
 const LATENCY_HISTORY_MAX = 20;
 const latencyHistory = [];
 
-function updateLatencyVisualization(latencyMs) {
+export function updateLatencyVisualization(latencyMs) {
     latencyHistory.push(latencyMs);
     if (latencyHistory.length > LATENCY_HISTORY_MAX) {
         latencyHistory.shift();
@@ -40,7 +40,7 @@ function updateLatencyVisualization(latencyMs) {
     });
 }
 
-function updateConcurrencyVisualization(activeCount, queuedCount) {
+export function updateConcurrencyVisualization(activeCount, queuedCount) {
     const slotsContainer = getEl("concurrency-slots");
     if (!slotsContainer) return;
     
@@ -76,7 +76,6 @@ export async function fetchMetrics() {
         getEl("first-token-latency").innerText = `${metrics.avg_first_token_ms} ms`;
         getEl("queued-streams").innerText = metrics.queued_streams;
         
-        updateLatencyVisualization(metrics.avg_first_token_ms);
         updateConcurrencyVisualization(metrics.active_streams, metrics.queued_streams);
     } catch (err) {
         console.error("Error fetching metrics:", err);

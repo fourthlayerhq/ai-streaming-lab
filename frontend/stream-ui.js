@@ -1,4 +1,5 @@
 import { getEl, createEl } from './dom.js';
+import { updateConcurrencyVisualization, updateLatencyVisualization } from './metrics.js';
 
 export function createStreamCard(streamId) {
     const container = getEl("streams-container");
@@ -18,8 +19,14 @@ export function createStreamCard(streamId) {
     const outputElement = card.querySelector(".stream-output");
     const statusElement = card.querySelector(".stream-status");
     
+    const startTime = performance.now();
+    let firstTokenTime = null;
+    
     return {
         appendToken: (token) => {
+            if (!firstTokenTime) {
+                firstTokenTime = performance.now();
+            }
             outputElement.innerHTML += token;
         },
         updateStatus: (statusText) => {
@@ -29,8 +36,17 @@ export function createStreamCard(streamId) {
             if (['queued', 'active', 'completed'].includes(state)) {
                 card.classList.add(state);
             }
+            
+            const activeCount = container.querySelectorAll('.stream-card.active').length;
+            const queuedCount = container.querySelectorAll('.stream-card.queued').length;
+            updateConcurrencyVisualization(activeCount, queuedCount);
+            
             if (state === 'completed') {
                 updateRetention();
+                if (firstTokenTime) {
+                    const latency = Math.round(firstTokenTime - startTime);
+                    updateLatencyVisualization(latency);
+                }
             }
         }
     };

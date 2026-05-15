@@ -17,19 +17,23 @@
             <p>Real-time systems observability console</p>
         </header>
 
-        <div class="compact-demo">
-            <div class="buttons">
-                <button id="normal-btn">Normal</button>
-                <button id="stream-btn">Stream</button>
-            </div>
-            <div id="response-box" class="compact-box">Waiting for response...</div>
+        <div class="tabs">
+            <button id="tab-basics" class="tab-btn">Streaming Basics</button>
+            <button id="tab-concurrent" class="tab-btn active">Concurrent Systems</button>
         </div>
 
-        <hr />
+        <div id="section-basics" class="tab-content" style="display: none;">
+            <div class="compact-demo">
+                <div class="buttons">
+                    <button id="normal-btn">Normal</button>
+                    <button id="stream-btn">Stream</button>
+                </div>
+                <div id="response-box" class="compact-box">Waiting for response...</div>
+            </div>
+        </div>
 
-        <h2>Concurrent Systems Lab</h2>
-
-        <div class="dashboard-grid">
+        <div id="section-concurrent" class="tab-content">
+            <div class="dashboard-grid">
             <div class="controls-panel">
                 <div class="control-row">
                     <label>Count:</label>
@@ -87,6 +91,7 @@
             <span class="retention-indicator">Showing latest 20 completed streams</span>
         </div>
         <div id="streams-container"></div>
+        </div>
     </div>
 
     <script type="module" src="script.js"></script>
