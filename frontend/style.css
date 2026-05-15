@@ -3,7 +3,7 @@ body {
     background: #111;
     color: white;
     margin: 0;
-    padding: 40px;
+    padding: 20px 40px;
 }
 
 .container {
@@ -12,23 +12,24 @@ body {
 }
 
 header {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 header h1 {
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 header p {
     margin-top: 0;
     color: #888;
+    font-size: 14px;
 }
 
 /* Tabs */
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #333;
-    padding-bottom: 10px;
+    padding-bottom: 6px;
 }
 .tab-btn {
     background: transparent;
@@ -119,22 +120,32 @@ h2 {
 
 /* Dashboard Grid */
 .dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 0px;
+}
+
+.dashboard-top-row, .dashboard-middle-row {
     display: grid;
     grid-template-columns: 250px 1fr;
-    gap: 20px;
-    margin-top: 10px;
+    gap: 16px;
     align-items: stretch;
+}
+
+.dashboard-bottom-row {
+    display: block;
 }
 
 /* Controls Panel */
 .controls-panel {
     background: #151515;
     border: 1px solid #333;
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 6px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 .control-row {
     display: flex;
@@ -142,7 +153,7 @@ h2 {
     align-items: center;
 }
 .control-row label {
-    font-size: 14px;
+    font-size: 13px;
     color: #ccc;
 }
 .control-row input {
@@ -152,77 +163,82 @@ h2 {
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
+    font-size: 13px;
 }
 .control-actions {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 4px;
 }
 .control-actions button {
     flex: 1;
-    padding: 8px;
-    font-size: 14px;
+    padding: 6px;
+    font-size: 12px;
 }
 
 /* Metrics Dashboard */
 #metrics-dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    display: flex;
     gap: 12px;
     margin-top: 0;
+    align-items: stretch;
 }
 
 .metric-card {
     background: #151515;
     border: 1px solid #333;
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 6px;
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    flex: 1;
 }
 
 .metric-card h3 {
-    margin: 0 0 5px 0;
-    font-size: 12px;
+    margin: 0 0 2px 0;
+    font-size: 10px;
     color: #888;
     text-transform: uppercase;
 }
 
 .metric-card p {
     margin: 0;
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
     color: #00ff90;
 }
 
 .concurrency-visualization {
-    margin-top: 20px;
-    padding: 16px;
+    margin-top: 0;
+    padding: 12px;
     background: #151515;
     border: 1px solid #333;
-    border-radius: 10px;
+    border-radius: 6px;
+    height: 120px;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .concurrency-visualization h3 {
     margin-top: 0;
-    margin-bottom: 12px;
-    font-size: 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
     color: #888;
 }
 
 #concurrency-slots {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .slot {
-    padding: 8px 12px;
+    padding: 4px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     font-family: monospace;
     border: 1px solid #333;
@@ -240,58 +256,73 @@ h2 {
 }
 
 .queue-status {
-    font-size: 13px;
+    font-size: 12px;
     color: #d97706;
     font-weight: bold;
 }
 
 .latency-history-section {
-    margin-top: 20px;
-    padding: 16px;
+    margin-top: 0;
+    padding: 12px;
     background: #151515;
     border: 1px solid #333;
-    border-radius: 10px;
+    border-radius: 6px;
+    height: 120px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .latency-history-section h3 {
     margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 14px;
+    margin-bottom: 2px;
+    font-size: 13px;
     color: #888;
 }
 
 .latency-helper-text {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
     margin-top: 0;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 #latency-history-bars {
     display: flex;
     align-items: flex-end;
     gap: 4px;
-    height: 60px;
+    flex-grow: 1;
+    height: auto;
 }
 
 .latency-bar {
     flex: 1;
     background: #00ff90;
-    min-width: 10px;
+    min-width: 8px;
     border-radius: 2px 2px 0 0;
     transition: height 0.3s ease;
 }
 
 /* Realtime Event Feed */
+.terminal-panel-wrapper {
+    background: #151515;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* fixed height for primary panel */
+}
+
 #streams-container {
     display: flex;
     flex-direction: column;
     background: #000;
     border: 1px solid #222;
-    border-radius: 6px;
-    padding: 12px;
-    margin-top: 10px;
-    height: 400px;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 0;
+    flex-grow: 1;
     overflow-y: auto;
     gap: 2px;
 }
@@ -325,8 +356,8 @@ h2 {
 .stream-grid-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-top: 30px;
+    align-items: center; /* changed from flex-end */
+    margin-top: 0; /* removed 30px */
     margin-bottom: 8px;
 }
 
@@ -338,7 +369,7 @@ h2 {
 
 .stream-grid-header h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px; /* reduced */
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #e5e5e5;
