@@ -98,3 +98,33 @@ button {
     font-weight: bold;
     color: #00ff90;
 }
+
+.latency-history-section {
+    margin-top: 20px;
+    padding: 16px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+
+.latency-history-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #888;
+}
+
+#latency-history-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+}
+
+.latency-bar {
+    flex: 1;
+    background: #00ff90;
+    min-width: 10px;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+}
