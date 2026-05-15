@@ -172,7 +172,8 @@ h2 {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    overflow-y: auto;
 }
 .control-row {
     display: flex;
@@ -183,19 +184,55 @@ h2 {
     font-size: 13px;
     color: #ccc;
 }
-.control-row input {
+.control-row input, .control-row select {
     width: 60px;
     background: #222;
     border: 1px solid #444;
     color: white;
-    padding: 6px 8px;
+    padding: 4px 6px;
     border-radius: 4px;
     font-size: 13px;
 }
 .control-actions {
     display: flex;
     gap: 10px;
+    margin-top: 4px;
+}
+.simulation-controls {
     margin-top: 8px;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+}
+.simulation-controls summary {
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.sim-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.sim-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.sim-row label {
+    font-size: 12px;
+    color: #ccc;
+}
+.sim-row input[type="number"] {
+    width: 50px;
+    background: #222;
+    border: 1px solid #444;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 12px;
 }
 .control-actions button {
     flex: 1;
@@ -252,12 +289,53 @@ h2 {
 }
 
 .concurrency-visualization h3 {
-    margin-top: 0;
-    margin-bottom: 12px;
+    margin: 0;
     font-size: 13px;
     color: #888;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.slots-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.queue-pressure-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.pressure-bar-bg {
+    width: 60px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.pressure-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.pressure-fill.low { background: #4ade80; }
+.pressure-fill.medium { background: #facc15; }
+.pressure-fill.high { background: #fb923c; }
+.pressure-fill.critical { 
+    background: #f87171; 
+    animation: critical-pulse 1s infinite alternate;
+}
+
+@keyframes critical-pulse {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
 }
 
 #concurrency-slots {
@@ -270,16 +348,38 @@ h2 {
 .slot {
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 11px;
     font-family: monospace;
     border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 100px;
 }
 
 .slot.active-slot {
-    background: rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.1);
     border-color: #2563eb;
     color: #8be9fd;
+}
+
+.slot.empty-slot {
+    background: transparent;
+    color: #555;
+    opacity: 0.5;
+    justify-content: center;
+    align-items: center;
+    min-width: 60px;
+}
+
+.slot-id {
+    font-weight: bold;
+    color: #bbb;
+}
+
+.slot-metrics {
+    font-size: 10px;
+    color: #888;
 }
 
 .slot.empty-slot {
@@ -336,6 +436,27 @@ h2 {
     min-width: 8px;
     border-radius: 3px 3px 0 0;
     transition: height 0.3s ease;
+    position: relative;
+    cursor: crosshair;
+}
+
+.latency-bar:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: monospace;
+    white-space: pre;
+    z-index: 10;
+    margin-bottom: 4px;
+    border: 1px solid #444;
+    pointer-events: none;
 }
 
 /* Realtime Event Feed */
@@ -384,11 +505,13 @@ h2 {
     word-break: break-all;
 }
 
-.event-queued .log-message { color: #fbbf24; }
+.event-queued .log-message { color: #facc15; }
 .event-assigned .log-message { color: #60a5fa; }
 .event-first_token .log-message { color: #22d3ee; }
 .event-completed .log-message { color: #4ade80; }
 .event-error .log-message { color: #f87171; }
+.event-timeout .log-message { color: #fb923c; }
+.event-degraded .log-message { color: #fbbf24; }
 
 .stream-grid-header {
     display: flex;

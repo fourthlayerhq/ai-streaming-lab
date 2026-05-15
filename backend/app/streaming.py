@@ -47,40 +47,52 @@ async def stream_response(
 
                 first_token_sent = False
 
-                async for token in fake_token_generator(
-                    startup_delay=startup_delay,
-                    token_delay=token_delay,
-                ):
+                from .fake_llm import StreamingFailure
+                try:
+                    async for token in fake_token_generator(
+                        startup_delay=startup_delay,
+                        token_delay=token_delay,
+                        config=stream_manager.config
+                    ):
 
-                    if token == "[DONE]":
+                        if token == "[DONE]":
 
-                        yield {
-                            "event": "status",
-                            "data": "completed",
-                        }
+                            yield {
+                                "event": "status",
+                                "data": "completed",
+                            }
 
-                        yield {
-                            "event": "done",
-                            "data": "completed",
-                        }
+                            yield {
+                                "event": "done",
+                                "data": "completed",
+                            }
 
-                        break
+                            break
 
-                    if not first_token_sent:
+                        if not first_token_sent:
 
-                        stream_manager.mark_first_token(
+                            stream_manager.mark_first_token(
+                                session.id
+                            )
+
+                            first_token_sent = True
+
+                        stream_manager.increment_token(
                             session.id
                         )
 
-                        first_token_sent = True
-
-                    stream_manager.increment_token(
-                        session.id
-                    )
-
+                        yield {
+                            "event": "message",
+                            "data": token,
+                        }
+                except StreamingFailure as e:
                     yield {
-                        "event": "message",
-                        "data": token,
+                        "event": "status",
+                        "data": "error",
+                    }
+                    yield {
+                        "event": "error",
+                        "data": str(e),
                     }
 
         finally:

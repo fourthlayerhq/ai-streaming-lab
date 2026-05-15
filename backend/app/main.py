@@ -1,10 +1,12 @@
 import asyncio
+from pydantic import BaseModel
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .streaming import stream_response
 from .stream_manager import stream_manager
+from .queue_manager import stream_semaphore
 
 app = FastAPI()
 
@@ -47,7 +49,28 @@ async def metrics():
 
 @app.post("/reset-metrics")
 async def reset_metrics():
-
     stream_manager.reset()
-
     return {"status": "reset"}
+
+class ConfigUpdate(BaseModel):
+    max_concurrent_slots: int = None
+    failure_rate: float = None
+    random_startup_delay: bool = None
+    token_jitter: bool = None
+    slow_stream_prob: float = None
+
+@app.post("/config")
+async def update_config(config: ConfigUpdate):
+    if config.max_concurrent_slots is not None:
+        await stream_semaphore.set_slots(config.max_concurrent_slots)
+    
+    if config.failure_rate is not None:
+        stream_manager.config["failure_rate"] = config.failure_rate
+    if config.random_startup_delay is not None:
+        stream_manager.config["random_startup_delay"] = config.random_startup_delay
+    if config.token_jitter is not None:
+        stream_manager.config["token_jitter"] = config.token_jitter
+    if config.slow_stream_prob is not None:
+        stream_manager.config["slow_stream_prob"] = config.slow_stream_prob
+        
+    return {"status": "updated"}

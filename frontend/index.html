@@ -42,6 +42,16 @@
                             <input type="number" id="stream-count" min="1" max="100" value="5" />
                         </div>
                         <div class="control-row">
+                            <label>Max Slots:</label>
+                            <select id="max-slots">
+                                <option value="1">1</option>
+                                <option value="3" selected>3</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+                        <div class="control-row">
                             <label>Startup (ms):</label>
                             <input type="number" id="startup-delay" value="500" />
                         </div>
@@ -53,6 +63,28 @@
                             <button id="simulate-btn" class="btn-primary">Launch</button>
                             <button id="reset-btn">Reset</button>
                         </div>
+                        
+                        <details class="simulation-controls">
+                            <summary>Failure Injection</summary>
+                            <div class="sim-grid">
+                                <div class="sim-row">
+                                    <label>Failure Rate %:</label>
+                                    <input type="number" id="failure-rate" min="0" max="100" value="0" />
+                                </div>
+                                <div class="sim-row">
+                                    <label>Slow Stream Prob:</label>
+                                    <input type="number" id="slow-stream" min="0" max="1" step="0.1" value="0" />
+                                </div>
+                                <div class="sim-row">
+                                    <label>Startup Delay:</label>
+                                    <input type="checkbox" id="random-startup" />
+                                </div>
+                                <div class="sim-row">
+                                    <label>Token Jitter:</label>
+                                    <input type="checkbox" id="token-jitter" />
+                                </div>
+                            </div>
+                        </details>
                     </div>
                     
                     <div id="metrics-dashboard">
@@ -76,14 +108,25 @@
                             <h3>Latency</h3>
                             <p id="first-token-latency">0 ms</p>
                         </div>
+                        <div class="metric-card">
+                            <h3>Throughput</h3>
+                            <p><span id="throughput">0.0</span> <span style="font-size: 10px; color: #888;">s/sec</span></p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="dashboard-middle-row">
                     <div class="concurrency-visualization">
-                        <h3>Concurrency Slots</h3>
+                        <div class="slots-header">
+                            <h3>Concurrency Slots</h3>
+                            <div class="queue-pressure-indicator">
+                                <span id="pressure-text">LOW (0%)</span>
+                                <div class="pressure-bar-bg">
+                                    <div id="pressure-bar-fill" class="pressure-fill low"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div id="concurrency-slots"></div>
-                        <div class="queue-status">Queue: <span id="slot-queue-count">0</span> waiting</div>
                     </div>
 
                     <div class="latency-history-section">

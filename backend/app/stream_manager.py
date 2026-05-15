@@ -1,5 +1,6 @@
 from datetime import datetime
-
+from .queue_manager import stream_semaphore
+import random
 
 class StreamManager:
 
@@ -7,12 +8,21 @@ class StreamManager:
         self.active_streams = {}
         self.completed_streams = {}
         self.queued_streams = 0
-        
+        self.config = {
+            "failure_rate": 0.0,
+            "random_startup_delay": False,
+            "token_jitter": False,
+            "slow_stream_prob": 0.0
+        }
+        self.start_time = datetime.utcnow()
+        self.total_completed_tokens = 0
 
     def reset(self):
         self.active_streams = {}
         self.completed_streams = {}
         self.queued_streams = 0
+        self.start_time = datetime.utcnow()
+        self.total_completed_tokens = 0
 
     def create_session(self, session):
         self.active_streams[session.id] = session
@@ -71,12 +81,29 @@ class StreamManager:
                     sum(first_token_times) / len(first_token_times)
                 )
 
+        now = datetime.utcnow()
+        elapsed_seconds = (now - self.start_time).total_seconds()
+        throughput = 0.0
+        if elapsed_seconds > 0:
+            throughput = len(self.completed_streams) / elapsed_seconds
+
+        active_details = {}
+        for sid, session in self.active_streams.items():
+            active_time = (now - session.started_at).total_seconds()
+            active_details[sid] = {
+                "active_time": round(active_time, 1),
+                "token_count": session.token_count
+            }
+
         return {
             "active_streams": len(self.active_streams),
             "completed_streams": len(self.completed_streams),
             "avg_tokens_per_stream": round(avg_tokens, 2),
             "avg_first_token_ms": round(avg_first_token_ms, 2),
             "queued_streams": self.queued_streams,
+            "throughput_sec": round(throughput, 2),
+            "max_concurrent_slots": stream_semaphore.max_slots,
+            "active_details": active_details
         }
 
     def increment_queue(self):

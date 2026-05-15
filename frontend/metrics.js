@@ -35,34 +35,63 @@ export function updateLatencyVisualization(streamId, latencyMs) {
             bar.style.height = `${Math.min(heightPct, 100)}%`;
         }
         
-        bar.title = `stream-${item.id}\nfirst token latency\n${item.val}ms`;
+        bar.setAttribute('data-tooltip', `stream-${item.id.substring(0, 5)}\nfirst token: ${item.val}ms`);
         container.appendChild(bar);
     });
 }
 
-export function updateConcurrencyVisualization(activeCount, queuedCount) {
+export function updateConcurrencyVisualization(metrics) {
     const slotsContainer = getEl("concurrency-slots");
     if (!slotsContainer) return;
     
     slotsContainer.innerHTML = "";
     
-    const MAX_SLOTS = 3; 
-    const totalSlots = Math.max(MAX_SLOTS, activeCount);
+    const activeCount = metrics.active_streams;
+    const queuedCount = metrics.queued_streams;
+    const maxSlots = metrics.max_concurrent_slots || 3;
+    const activeDetails = metrics.active_details || {};
     
-    for (let i = 1; i <= totalSlots; i++) {
+    const activeIds = Object.keys(activeDetails);
+    
+    for (let i = 1; i <= maxSlots; i++) {
         const slot = createEl("div");
-        if (i <= activeCount) {
+        if (i <= activeIds.length) {
+            const sid = activeIds[i-1];
+            const details = activeDetails[sid];
+            const shortId = sid.substring(0, 5);
             slot.className = "slot active-slot";
-            slot.innerText = `[SLOT ${i}] ACTIVE`;
+            slot.innerHTML = `
+                <div class="slot-id">[SLOT ${i}] str-${shortId}</div>
+                <div class="slot-metrics">active ${details.active_time}s</div>
+            `;
         } else {
             slot.className = "slot empty-slot";
-            slot.innerText = `[SLOT ${i}] EMPTY`;
+            slot.innerHTML = `[SLOT ${i}]<br>EMPTY`;
         }
         slotsContainer.appendChild(slot);
     }
     
-    const queueEl = getEl("slot-queue-count");
-    if (queueEl) queueEl.innerText = queuedCount;
+    const pressureText = getEl("pressure-text");
+    const pressureFill = getEl("pressure-bar-fill");
+    
+    if (pressureText && pressureFill) {
+        let pressure = 0;
+        let total = activeCount + queuedCount;
+        if (total > 0 && maxSlots > 0) {
+            pressure = queuedCount / (maxSlots * 2); 
+            pressure = Math.min(pressure, 1);
+        }
+        
+        let state = "LOW";
+        let fillClass = "low";
+        if (pressure >= 0.8) { state = "CRITICAL"; fillClass = "critical"; }
+        else if (pressure >= 0.5) { state = "HIGH"; fillClass = "high"; }
+        else if (pressure >= 0.2) { state = "MEDIUM"; fillClass = "medium"; }
+        
+        pressureText.innerText = `${state} (${Math.round(pressure * 100)}%)`;
+        pressureFill.className = `pressure-fill ${fillClass}`;
+        pressureFill.style.width = `${Math.round(pressure * 100)}%`;
+    }
 }
 
 export async function fetchMetrics() {
@@ -75,8 +104,9 @@ export async function fetchMetrics() {
         getEl("avg-tokens").innerText = metrics.avg_tokens_per_stream;
         getEl("first-token-latency").innerText = `${metrics.avg_first_token_ms} ms`;
         getEl("queued-streams").innerText = metrics.queued_streams;
+        getEl("throughput").innerText = metrics.throughput_sec.toFixed(1);
         
-        updateConcurrencyVisualization(metrics.active_streams, metrics.queued_streams);
+        updateConcurrencyVisualization(metrics);
     } catch (err) {
         console.error("Error fetching metrics:", err);
     }

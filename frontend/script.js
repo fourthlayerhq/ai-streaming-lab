@@ -11,6 +11,37 @@ const startupDelayInput = getEl("startup-delay");
 const tokenDelayInput = getEl("token-delay");
 const resetBtn = getEl("reset-btn");
 
+const maxSlotsSelect = getEl("max-slots");
+const failureRateInput = getEl("failure-rate");
+const slowStreamInput = getEl("slow-stream");
+const randomStartupInput = getEl("random-startup");
+const tokenJitterInput = getEl("token-jitter");
+
+async function updateConfig() {
+    const config = {
+        max_concurrent_slots: parseInt(maxSlotsSelect.value),
+        failure_rate: parseFloat(failureRateInput.value) / 100.0,
+        slow_stream_prob: parseFloat(slowStreamInput.value),
+        random_startup_delay: randomStartupInput.checked,
+        token_jitter: tokenJitterInput.checked
+    };
+    try {
+        await fetch("http://127.0.0.1:8000/config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(config)
+        });
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+maxSlotsSelect.addEventListener("change", updateConfig);
+failureRateInput.addEventListener("change", updateConfig);
+slowStreamInput.addEventListener("change", updateConfig);
+randomStartupInput.addEventListener("change", updateConfig);
+tokenJitterInput.addEventListener("change", updateConfig);
+
 // TABS LOGIC
 const tabBasics = getEl("tab-basics");
 const tabConcurrent = getEl("tab-concurrent");
@@ -63,7 +94,8 @@ async function launchConcurrentStreams(count) {
     }
 }
 
-simulateBtn.addEventListener("click", () => {
+simulateBtn.addEventListener("click", async () => {
+    await updateConfig();
     const count = Number(streamCountInput.value);
     launchConcurrentStreams(count);
 });
