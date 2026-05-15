@@ -155,3 +155,10 @@ This project intentionally focuses on one engineering concept:
 > Why streaming dramatically improves perceived latency in AI systems.
 
 It is not intended to be a full AI framework or ChatGPT clone.
+
+
+## Architecture Notes
+
+Detailed architecture breakdown available here:
+
+- [Streaming Architecture](./architecture/streaming-architecture.md)
