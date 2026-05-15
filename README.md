@@ -46,6 +46,18 @@ This demonstrates how streaming systems behave under load and why concurrency ma
 
 ---
 
+## Live Latency Visualization
+
+The system tracks first-token latency over time. This latency history helps visualize queue pressure and concurrency effects under load. The UI intentionally exposes real-time systems behavior, making it easier to observe bottlenecks and system recovery.
+
+Each stream also transitions through a visible lifecycle:
+
+```txt
+queued → active → completed
+```
+
+---
+
 ## Why This Matters
 
 Modern AI applications are increasingly real-time systems.
